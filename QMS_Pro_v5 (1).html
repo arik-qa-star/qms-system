@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>8D Quality Management System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a5fb4;--blue-l:#e8f2ff;--blue-d:#0e3d7a;
+  --green:#2e7d32;--green-l:#e8f5e9;
+  --amber:#b45309;--amber-l:#fef3c7;
+  --red:#b91c1c;--red-l:#fee2e2;
+  --purple:#6d28d9;--purple-l:#ede9fe;
+  --gray:#374151;--gray-l:#f3f4f6;--gray-m:#6b7280;--gray-b:#d1d5db;
+  --white:#fff;--bg:#f9fafb;--r:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.1);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--gray);min-height:100vh;font-size:14px}
+.app{display:grid;grid-template-columns:196px 1fr;min-height:100vh}
+.sidebar{background:var(--white);border-right:1px solid var(--gray-b);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.content{overflow:auto;min-width:0}
+.nav-brand{padding:14px 12px 10px;border-bottom:1px solid var(--gray-b)}
+.nav-brand h1{font-size:15px;font-weight:700;color:var(--blue)}
+.nav-brand p{font-size:11px;color:var(--gray-m);margin-top:2px}
+.nav-sec{padding:9px 12px 2px;font-size:10px;font-weight:600;color:var(--gray-m);text-transform:uppercase;letter-spacing:.5px}
+.nav-item{display:flex;align-items:center;gap:7px;padding:7px 10px;margin:1px 6px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--gray);transition:all .12s;border:1px solid transparent}
+.nav-item:hover{background:var(--gray-l)}.nav-item.active{background:var(--blue-l);color:var(--blue);font-weight:500;border-color:#bfdbfe}
+.nav-badge{margin-left:auto;background:var(--red-l);color:var(--red);font-size:10px;font-weight:700;padding:1px 5px;border-radius:10px}
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-b);padding:10px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.topbar h2{font-size:15px;font-weight:600}
+.page{padding:16px 18px;display:none}.page.on{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:13px 15px;box-shadow:var(--shadow)}
+.stat .v{font-size:24px;font-weight:700;margin-bottom:1px}.stat .l{font-size:10.5px;font-weight:500;color:var(--gray-m);text-transform:uppercase;letter-spacing:.3px}
+.stat.blue .v{color:var(--blue)}.stat.amber .v{color:var(--amber)}.stat.green .v{color:var(--green)}.stat.red .v{color:var(--red)}
+.tcard{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.tbar{padding:10px 14px;border-bottom:1px solid var(--gray-b);display:flex;align-items:center;gap:8px}
+.tbar h3{font-size:13px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{padding:7px 11px;text-align:left;font-size:10.5px;font-weight:600;color:var(--gray-m);text-transform:uppercase;letter-spacing:.3px;background:var(--gray-l);border-bottom:1px solid var(--gray-b)}
+td{padding:8px 11px;border-bottom:1px solid var(--gray-b);vertical-align:middle}
+tr:last-child td{border-bottom:none}tr:hover td{background:#fafafa}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600}
+.b-open{background:var(--amber-l);color:var(--amber)}.b-closed{background:var(--green-l);color:var(--green)}
+.b-8d{background:var(--blue-l);color:var(--blue)}.b-capa{background:var(--green-l);color:var(--green)}.b-as9{background:var(--purple-l);color:var(--purple)}
+.cbar-wrap{min-width:75px}.cbar-lbl{font-size:11px;font-weight:500;margin-bottom:2px}
+.cbar{height:4px;background:var(--gray-l);border-radius:2px;overflow:hidden}
+.cbar-fill{height:100%;border-radius:2px;background:var(--blue)}.cbar-fill.warn{background:var(--amber)}.cbar-fill.over{background:var(--red)}
+.btn{padding:6px 13px;border-radius:6px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:5px;transition:all .12s}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}.btn-primary:hover{background:var(--blue-d)}
+.btn-secondary{background:var(--white);color:var(--gray);border-color:var(--gray-b)}.btn-secondary:hover{background:var(--gray-l)}
+.btn-ai{background:var(--blue-l);color:var(--blue);border-color:#bfdbfe;font-weight:600}.btn-ai:hover{background:#dbeafe}
+.btn-success{background:var(--green-l);color:var(--green);border-color:#a7d7a9}
+.btn-danger{background:var(--red-l);color:var(--red);border-color:#fca5a5}
+.btn-sm{padding:3px 9px;font-size:12px}
+.ed-wrap{display:grid;grid-template-columns:184px 1fr;gap:12px}
+.steps-col{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:10px;height:fit-content;position:sticky;top:56px}
+.steps-col h3{font-size:10px;font-weight:600;color:var(--gray-m);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.prog{height:3px;background:var(--gray-l);border-radius:2px;margin:4px 0 7px;overflow:hidden}
+.prog-f{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+.sbtn{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:background .1s}
+.sbtn:hover{background:var(--gray-l)}.sbtn.on{background:var(--blue-l);border-color:#bfdbfe}.sbtn.done{opacity:.6}
+.snum{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:1px;background:var(--gray-l);color:var(--gray-m);border:1px solid var(--gray-b)}
+.sbtn.on .snum{background:var(--blue);color:#fff;border-color:var(--blue)}.sbtn.done .snum{background:var(--green-l);color:var(--green);border-color:#a7d7a9}
+.slbl{font-size:11.5px;color:var(--gray);line-height:1.25}.sbtn.on .slbl{color:var(--blue);font-weight:500}.ssub{font-size:10px;color:var(--gray-m)}
+.panel{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--gray-b)}
+.pico{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ptitle{font-size:14px;font-weight:600}.pdesc{font-size:11.5px;color:var(--gray-m);margin-top:1px}
+.fgroup{margin-bottom:9px}.flabel{font-size:12px;font-weight:600;color:#4b5563;display:block;margin-bottom:3px}
+.fhint{font-size:11px;color:var(--gray-m);margin-bottom:3px;display:block}
+input[type=text],input[type=date],select,textarea{font-family:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--gray-b);border-radius:6px;background:var(--white);color:var(--gray);width:100%;transition:border-color .12s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,95,180,.08)}
+textarea{resize:vertical;min-height:66px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px}
+.atbl{width:100%;border-collapse:collapse;font-size:12.5px;border:1px solid var(--gray-b);border-radius:6px;overflow:hidden}
+.atbl th{padding:6px 9px;background:var(--gray-l);font-size:10.5px;font-weight:600;color:var(--gray-m);text-transform:uppercase;border-bottom:1px solid var(--gray-b);text-align:left}
+.atbl td{padding:4px 5px;border-bottom:1px solid var(--gray-b)}
+.atbl tr:last-child td{border-bottom:none}
+.atbl input,.atbl select{border:1px solid transparent;background:transparent;font-size:12.5px;padding:4px 5px;width:100%;border-radius:4px}
+.atbl input:focus,.atbl select:focus{border-color:var(--blue);background:var(--white);outline:none}
+/* AI */
+.ai-area{margin-bottom:10px}
+.ai-box{background:var(--blue-l);border:1px solid #bfdbfe;border-radius:6px;padding:10px 13px;font-size:12.5px;color:var(--gray);line-height:1.65}
+.ai-box strong{color:var(--blue-d)}
+.ai-box ul{margin-left:18px;margin-top:4px}.ai-box li{margin-bottom:4px}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}
+.dots span{width:5px;height:5px;border-radius:50%;background:var(--blue);animation:pop 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes pop{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.tstrip{display:flex;gap:8px;margin-bottom:11px;flex-wrap:wrap}
+.tbox{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:8px 12px;flex:1;min-width:100px;text-align:center}
+.tbox .tv{font-size:14px;font-weight:700;color:var(--gray)}.tbox .tl{font-size:10.5px;color:var(--gray-m);margin-top:1px}
+.tbox.warn .tv{color:var(--amber)}.tbox.over .tv{color:var(--red)}.tbox.good .tv{color:var(--green)}
+.fn-banner{background:var(--amber-l);border:2px solid #f59e0b;border-radius:var(--r);padding:8px 13px;margin-bottom:11px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.fn-req{background:#f59e0b;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;white-space:nowrap}
+.fn-banner label{font-size:12px;font-weight:700;color:var(--amber);white-space:nowrap}
+.fn-banner input{font-size:13px;font-weight:600;border:1.5px solid #f59e0b;background:#fffbeb;flex:1;min-width:140px}
+.fn-saved{font-size:11px;color:var(--green);font-weight:600;white-space:nowrap}
+.logo-bar{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:10px 13px;margin-bottom:11px;display:flex;align-items:center;gap:11px}
+.lbox{width:68px;height:42px;border:1.5px dashed var(--gray-b);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;background:var(--gray-l)}
+.lbox:hover{border-color:var(--blue);background:var(--blue-l)}
+.lbox img{max-width:100%;max-height:100%;object-fit:contain;display:none}
+.lph{font-size:10px;color:var(--gray-m);text-align:center;line-height:1.4}
+.sec{font-size:11.5px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--blue-l);padding-bottom:4px;margin-bottom:9px;margin-top:14px}
+.sec:first-child{margin-top:0}
+/* Ishikawa */
+.ishi-wrap{border:1px solid var(--gray-b);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.ishi-hdr{padding:8px 13px;background:var(--gray-l);border-bottom:1px solid var(--gray-b);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ishi-hdr h4{font-size:12.5px;font-weight:600;flex:1}
+.ishi-svg{overflow-x:auto;background:var(--white);padding:6px}
+.ishi-svg svg{display:block;min-width:660px;width:100%;height:260px}
+.ishi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px;background:var(--gray-l);border-top:1px solid var(--gray-b)}
+.ishi-cell{background:var(--white);border-radius:6px;padding:8px;border:1px solid var(--gray-b)}
+.ishi-cell .clbl{font-size:10.5px;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+.ishi-cell textarea{min-height:52px;font-size:12px}
+/* 5 Whys */
+.whys{border:1px solid var(--gray-b);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.wrow{display:flex;border-bottom:1px solid var(--gray-b)}.wrow:last-child{border-bottom:none}
+.wnum{width:40px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.wrow:nth-child(even) .wnum{background:var(--blue-d)}
+.wfield{flex:1;padding:6px 9px;background:var(--white)}
+.wfield input{border:none;font-size:13px;width:100%;background:transparent;outline:none}
+.wfield input:focus{background:var(--blue-l);border-radius:4px;padding:2px 5px}
+.wtag{width:90px;display:flex;align-items:center;padding:6px 9px;background:var(--gray-l);font-size:10.5px;color:var(--gray-m);border-left:1px solid var(--gray-b)}
+.nav-btns{display:flex;gap:7px;margin-top:12px;padding-top:10px;border-top:1px solid var(--gray-b);flex-wrap:wrap}
+.done-view{text-align:center;padding:18px}
+.done-view h2{font-size:17px;font-weight:700;margin-bottom:5px}
+.done-view p{font-size:13px;color:var(--gray-m);margin-bottom:12px}
+.done-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;text-align:left;margin-top:12px}
+.dc{background:var(--gray-l);border-radius:6px;padding:9px;border:1px solid var(--gray-b)}
+.dc .dl{font-size:10px;font-weight:600;color:var(--gray-m);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px}
+.dc .dv{font-size:12.5px;font-weight:500}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
+.modal-bg.on{display:flex}
+.modal{background:var(--white);border-radius:var(--r);border:1px solid var(--gray-b);padding:18px;width:460px;max-width:95vw;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.modal h2{font-size:15px;font-weight:700;margin-bottom:12px}
+.mcards{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.mcard{border:1px solid var(--gray-b);border-radius:var(--r);padding:10px;cursor:pointer;transition:all .12s}
+.mcard:hover{border-color:var(--blue);background:var(--blue-l)}.mcard.on{border:2px solid var(--blue);background:var(--blue-l)}
+.mcard h3{font-size:13px;font-weight:600;margin-bottom:2px}.mcard p{font-size:11px;color:var(--gray-m);line-height:1.3}
+.empty{text-align:center;padding:36px;color:var(--gray-m)}
+.empty .ei{font-size:30px;margin-bottom:7px}
+.empty h3{font-size:14px;font-weight:600;color:#6b7280;margin-bottom:3px}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--gray-b);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="nav-brand"><h1>QMS Pro</h1><p>Quality Management</p></div>
+  <div class="nav-sec">Overview</div>
+  <div class="nav-item active" onclick="goPage('dashboard',this)">▦ Dashboard <span class="nav-badge" id="openBadge" style="display:none">0</span></div>
+  <div class="nav-sec">New Report</div>
+  <div class="nav-item" onclick="openModal('8d')"><span style="color:var(--blue)">◆</span> 8D — IATF 16949</div>
+  <div class="nav-item" onclick="openModal('capa')"><span style="color:var(--green)">⚕</span> CAPA — ISO 13485</div>
+  <div class="nav-item" onclick="openModal('as9100')"><span style="color:var(--purple)">✈</span> AS9100 Rev D</div>
+  <div style="flex:1"></div>
+  <div style="padding:9px 12px;font-size:10px;color:var(--gray-m);border-top:1px solid var(--gray-b)">v4.0 · IATF · ISO 13485 · AS9100</div>
+</nav>
+
+<!-- CONTENT -->
+<div class="content">
+  <div class="topbar">
+    <h2 id="pageTitle">Dashboard</h2>
+    <div style="margin-left:auto;display:flex;gap:7px">
+      <button class="btn btn-primary btn-sm" onclick="openModal('8d')">+ New Report</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page on" id="page-dashboard">
+    <div class="stats" id="statsGrid"></div>
+    <div class="tcard">
+      <div class="tbar">
+        <h3>Reports</h3>
+        <div style="margin-left:auto;display:flex;gap:5px">
+          <select id="fM" onchange="renderTable()" style="width:120px;padding:4px 7px;font-size:12px"><option value="">All Methods</option><option value="8d">8D — IATF</option><option value="capa">CAPA</option><option value="as9100">AS9100</option></select>
+          <select id="fS" onchange="renderTable()" style="width:100px;padding:4px 7px;font-size:12px"><option value="">All Status</option><option value="open">Open</option><option value="closed">Closed</option></select>
+        </div>
+      </div>
+      <div id="tableWrap"></div>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="page" id="page-editor">
+    <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="loadLogo(event)"/>
+    <div class="logo-bar">
+      <div class="lbox" id="lbox" onclick="document.getElementById('logoFile').click()" title="Upload logo">
+        <div class="lph" id="lph">Add<br>Logo</div>
+        <img id="limg" src="" alt="Logo"/>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:#4b5563;margin-bottom:3px">Company Logo</div>
+        <div style="display:flex;gap:5px;margin-top:3px">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('logoFile').click()">Upload</button>
+          <button class="btn btn-danger btn-sm" id="lremBtn" style="display:none" onclick="removeLogo()">Remove</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--gray-m);margin-bottom:3px">Company Name (on PDF)</div>
+        <input type="text" id="coName" placeholder="Your Company Name" style="width:160px;font-size:13px" oninput="localStorage.setItem('qms_co',this.value)"/>
+      </div>
+    </div>
+
+    <div class="fn-banner" id="fnBanner" style="display:none">
+      <span class="fn-req">REQUIRED</span>
+      <label>PDF Form #:</label>
+      <input type="text" id="fnInput" placeholder="e.g. QF-8D-2024-001" oninput="saveFN()"/>
+      <span class="fn-saved" id="fnSaved" style="display:none">✓ Saved</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--gray-m)" id="fnMeta"></span>
+    </div>
+
+    <div class="tstrip" id="timerStrip"></div>
+
+    <div class="ed-wrap">
+      <div class="steps-col">
+        <h3 id="stepsTitle">Steps</h3>
+        <div class="prog"><div class="prog-f" id="progF" style="width:0%"></div></div>
+        <div id="stepsList"></div>
+      </div>
+      <div class="panel" id="mainPanel"></div>
+    </div>
+  </div>
+</div><!-- /content -->
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h2>New Report</h2>
+    <div class="g2" style="margin-bottom:9px">
+      <div class="fgroup"><label class="flabel">Report / NCR Number *</label><input type="text" id="mNcr" placeholder="NCR-2024-001"/></div>
+      <div class="fgroup"><label class="flabel">Customer</label><input type="text" id="mCust" placeholder="Customer name"/></div>
+    </div>
+    <div class="fgroup" style="margin-bottom:9px"><label class="flabel">Short Description</label><input type="text" id="mDesc" placeholder="Brief problem description..."/></div>
+    <div class="fgroup" style="margin-bottom:11px"><label class="flabel">Methodology</label>
+      <div class="mcards" id="mcards">
+        <div class="mcard on" onclick="selM('8d',this)"><h3 style="color:var(--blue)">◆ 8D — IATF 16949</h3><p>Automotive, 8 disciplines D1–D8</p></div>
+        <div class="mcard" onclick="selM('capa',this)"><h3 style="color:var(--green)">⚕ CAPA — ISO 13485</h3><p>Medical devices, corrective action</p></div>
+        <div class="mcard" onclick="selM('as9100',this)"><h3 style="color:var(--purple)">✈ AS9100 Rev D</h3><p>Aerospace & defence</p></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createReport()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+//  METHODOLOGY CONFIG  (IATF / ISO 13485 / AS9100)
+// ═══════════════════════════════════
+const M = {
+  '8d':{label:'8D — IATF 16949',badge:'b-8d',target:30,steps:[
+    {id:'D1',l:'D1 — Header & Team',s:'Team Formation',
+     title:'D1 — Problem Description & Team',
+     desc:'IATF 16949 §10.2: Customer complaint details, affected part, cross-functional team'},
+    {id:'D2',l:'D2 — Problem Desc.',s:'5W / Problem Statement',
+     title:'D2 — Problem Description (5W)',
+     desc:'Quantify the defect: What, When, Where, How Many, Who detected — per customer requirement'},
+    {id:'D3',l:'D3 — Containment',s:'Short-term Actions',
+     title:'D3 — Short-term & Containment Actions',
+     desc:'IATF 16949 §10.2.3: Immediate actions to protect customer — action, responsibility, due date, % complete'},
+    {id:'D4',l:'D4 — Root Cause',s:'RCA — Fishbone + 5 Whys',
+     title:'D4 — Root Cause Analysis',
+     desc:'Ishikawa 6M Fishbone + 5 Whys chain — Why occurred & Why not detected'},
+    {id:'D5',l:'D5 — Corrective',s:'Permanent Actions',
+     title:'D5 — Permanent Corrective Actions',
+     desc:'IATF 16949 §10.2.3b: Actions targeting verified root cause — action, responsibility, due date, % complete'},
+    {id:'D6',l:'D6 — Documents',s:'Document Update',
+     title:'D6 — Implementation & Document Update',
+     desc:'Update PFMEA, Control Plan, Work Instructions, Procedures as required'},
+    {id:'D7',l:'D7 — Prevention',s:'Systemic Prevention',
+     title:'D7 — Preventive Actions (Wide Approach)',
+     desc:'IATF 16949 §10.3: Actions across similar processes, products, or production lines'},
+    {id:'D8',l:'D8 — Effectiveness',s:'Verify & Close',
+     title:'D8 — Verify Effectiveness & Closure',
+     desc:'Verify corrective actions are effective, obtain approval sign-off'},
+  ]},
+  'capa':{label:'CAPA — ISO 13485',badge:'b-capa',target:60,steps:[
+    {id:'C1',l:'C1 — Identification',s:'Problem ID',
+     title:'C1 — Problem Identification',
+     desc:'ISO 13485 §8.5.2: Source, affected device, initial assessment, MDR/Vigilance decision'},
+    {id:'C2',l:'C2 — Risk',s:'ISO 14971 Risk',
+     title:'C2 — Risk Assessment (ISO 14971)',
+     desc:'Severity × Probability risk classification, patient/user safety impact, regulatory reporting need'},
+    {id:'C3',l:'C3 — Containment',s:'Immediate Action',
+     title:'C3 — Immediate Containment Actions',
+     desc:'Quarantine affected product, field safety corrective action if required, customer notification'},
+    {id:'C4',l:'C4 — Root Cause',s:'RCA',
+     title:'C4 — Root Cause Analysis',
+     desc:'ISO 13485 §8.5.2b: Fishbone + 5 Whys — determine root cause of nonconformity'},
+    {id:'C5',l:'C5 — Action Plan',s:'CAPA Plan',
+     title:'C5 — CAPA Action Plan',
+     desc:'ISO 13485 §8.5.2c/8.5.3c: Corrective and preventive actions with owners and due dates'},
+    {id:'C6',l:'C6 — Implement',s:'DHF/DMR Update',
+     title:'C6 — Implementation & Documentation',
+     desc:'Update DHF/DMR/DHR as required, ensure traceability per §4.2.4/4.2.5'},
+    {id:'C7',l:'C7 — Effectiveness',s:'Effectiveness Check',
+     title:'C7 — Effectiveness Verification',
+     desc:'ISO 13485 §8.5.2f: Review evidence that CAPA eliminated root cause, no recurrence'},
+    {id:'C8',l:'C8 — Closure',s:'Close & Report',
+     title:'C8 — Closure & Regulatory Reporting',
+     desc:'ISO 13485 §8.5.2g: Sign-off, MDR (21 CFR 803) or EU MDR Vigilance if required'},
+  ]},
+  'as9100':{label:'AS9100 Rev D',badge:'b-as9',target:45,steps:[
+    {id:'A1',l:'A1 — NC ID',s:'Nonconformance',
+     title:'A1 — Nonconformance Identification',
+     desc:'AS9100 §8.7.1: Document NC, part number, drawing, classification (Critical/Major/Minor)'},
+    {id:'A2',l:'A2 — Problem',s:'Problem Statement',
+     title:'A2 — Problem Statement & Safety Assessment',
+     desc:'Safety of Flight impact, escape point, Prime Contractor notification if required'},
+    {id:'A3',l:'A3 — Containment',s:'Immediate Action',
+     title:'A3 — Immediate Action & Notification',
+     desc:'AS9100 §8.7.2: Escape point closure, segregation, customer/authority notification'},
+    {id:'A4',l:'A4 — Root Cause',s:'RCA',
+     title:'A4 — Root Cause Analysis',
+     desc:'AS9100 §10.2.1b: Is/Is Not, Fishbone, 5 Whys — occurrence and escape root causes'},
+    {id:'A5',l:'A5 — CAR',s:'Corrective Action',
+     title:'A5 — Corrective Action Request (CAR)',
+     desc:'CAR with customer/Prime Contractor approval gate, action plan with owners and dates'},
+    {id:'A6',l:'A6 — Verify Plan',s:'Plan Verification',
+     title:'A6 — Plan Verification',
+     desc:'First Article Inspection (FAIR), design review, product audit before full implementation'},
+    {id:'A7',l:'A7 — Implement',s:'Configuration',
+     title:'A7 — Implementation & Configuration Control',
+     desc:'Execute per CM Plan, Engineering Order / ECP if required, records traceability'},
+    {id:'A8',l:'A8 — Effectiveness',s:'Close-out',
+     title:'A8 — Effectiveness Verification & Close-out',
+     desc:'Follow-up audit, effectiveness report to customer, CAR/SCAR formal closure'},
+  ]}
+};
+
+// ═══════════════════════════════════
+//  DATA
+// ═══════════════════════════════════
+let reports=[], curId=null, curStep=0, selMethod='8d';
+
+async function loadData(){
+  try{const r=await window.storage.get('qms_v5');if(r&&r.value)reports=JSON.parse(r.value);}catch(e){}
+  document.getElementById('coName').value=localStorage.getItem('qms_co')||'';
+  initLogo();
+  renderAll();
+}
+async function persist(){try{await window.storage.set('qms_v5',JSON.stringify(reports));}catch(e){}}
+
+// ═══════════════════════════════════
+//  NAV
+// ═══════════════════════════════════
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('on');
+  if(el)el.classList.add('active');
+  document.getElementById('pageTitle').textContent=id==='dashboard'?'Dashboard':'Report Editor';
+  if(id==='dashboard')renderAll();
+}
+function openModal(m){
+  selMethod=m||'8d';
+  ['8d','capa','as9100'].forEach((k,i)=>document.querySelectorAll('.mcard')[i].classList.toggle('on',k===selMethod));
+  ['mNcr','mCust','mDesc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal').classList.add('on');
+}
+function closeModal(){document.getElementById('modal').classList.remove('on');}
+function selM(m,el){selMethod=m;document.querySelectorAll('.mcard').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+
+function createReport(){
+  const ncr=document.getElementById('mNcr').value.trim();
+  if(!ncr){alert('Report number required');return;}
+  const r={id:Date.now()+'',ncr,customer:document.getElementById('mCust').value.trim(),
+    desc:document.getElementById('mDesc').value.trim(),method:selMethod,
+    status:'open',openedAt:new Date().toISOString(),closedAt:null,
+    currentStep:0,formNumber:'',exportedAt:null,fd:{}};
+  reports.unshift(r);persist();closeModal();openEditor(r.id);
+}
+
+// ═══════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════
+function renderAll(){renderStats();renderTable();updateBadge();}
+function renderStats(){
+  const tot=reports.length,op=reports.filter(r=>r.status==='open').length;
+  const cl=reports.filter(r=>r.status==='closed').length,ov=reports.filter(r=>r.status==='open'&&isOver(r)).length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat blue"><div class="v">${tot}</div><div class="l">Total</div></div>
+    <div class="stat amber"><div class="v">${op}</div><div class="l">Open</div></div>
+    <div class="stat green"><div class="v">${cl}</div><div class="l">Closed</div></div>
+    <div class="stat red"><div class="v">${ov}</div><div class="l">Overdue</div></div>`;
+}
+function updateBadge(){const b=document.getElementById('openBadge'),n=reports.filter(r=>r.status==='open').length;b.textContent=n;b.style.display=n?'':'none';}
+function isOver(r){return Math.floor((Date.now()-new Date(r.openedAt))/86400000)>(M[r.method]||M['8d']).target;}
+function fd(iso){return iso?new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';}
+function renderTable(){
+  const mf=document.getElementById('fM')?.value||'',sf=document.getElementById('fS')?.value||'';
+  const list=reports.filter(r=>(!mf||r.method===mf)&&(!sf||r.status===sf));
+  if(!list.length){document.getElementById('tableWrap').innerHTML='<div class="empty"><div class="ei">📋</div><h3>No reports yet</h3><p>Click "+ New Report" to start</p></div>';return;}
+  const meth=m=>M[m]||M['8d'];
+  document.getElementById('tableWrap').innerHTML=`<table>
+    <thead><tr><th>Report #</th><th>Description</th><th>Method</th><th>Status</th><th>Opened</th><th>Closed</th><th>Cycle</th><th>Actions</th></tr></thead>
+    <tbody>${list.map(r=>{
+      const d0=Math.floor((Date.now()-new Date(r.openedAt))/86400000);
+      const tgt=meth(r.method).target;
+      const cyc=r.closedAt?Math.floor((new Date(r.closedAt)-new Date(r.openedAt))/86400000):d0;
+      const pct=Math.min((cyc/tgt)*100,100);
+      const cls=cyc>tgt?'over':cyc>tgt*.8?'warn':'';
+      return `<tr>
+        <td><b>${r.ncr}</b>${r.formNumber?`<br><span style="font-size:11px;color:var(--gray-m)">${r.formNumber}</span>`:''}</td>
+        <td style="max-width:150px">${r.desc||'—'}${r.customer?`<br><span style="font-size:11px;color:var(--gray-m)">${r.customer}</span>`:''}</td>
+        <td><span class="badge ${meth(r.method).badge}">${meth(r.method).label}</span></td>
+        <td><span class="badge ${r.status==='open'?'b-open':'b-closed'}">${r.status==='open'?'Open':'Closed'}</span></td>
+        <td style="font-size:11.5px">${fd(r.openedAt)}</td>
+        <td style="font-size:11.5px">${r.closedAt?fd(r.closedAt):'—'}</td>
+        <td><div class="cbar-wrap">
+          <div class="cbar-lbl" style="color:${cls==='over'?'var(--red)':cls==='warn'?'var(--amber)':'var(--green)'}">${cyc}d / ${tgt}d</div>
+          <div class="cbar"><div class="cbar-fill ${cls}" style="width:${Math.round(pct)}%"></div></div>
+        </div></td>
+        <td><div style="display:flex;gap:3px">
+          <button class="btn btn-primary btn-sm" onclick="openEditor('${r.id}')">Open</button>
+          <button class="btn btn-secondary btn-sm" onclick="exportPDF('${r.id}')">PDF</button>
+          <button class="btn btn-danger btn-sm" onclick="delR('${r.id}')">✕</button>
+        </div></td>
+      </tr>`;
+    }).join('')}</tbody></table>`;
+}
+function delR(id){if(!confirm('Delete this report?'))return;reports=reports.filter(r=>r.id!==id);persist();renderAll();}
+
+// ═══════════════════════════════════
+//  EDITOR
+// ═══════════════════════════════════
+function openEditor(id){
+  curId=id;curStep=(reports.find(r=>r.id===id)||{}).currentStep||0;
+  goPage('editor');
+  document.getElementById('pageTitle').textContent='Report: '+(reports.find(r=>r.id===id)||{}).ncr;
+  renderFN();renderTimer();renderSidebar();renderStep();
+}
+function getCur(){return reports.find(r=>r.id===curId);}
+function getfd(key){const r=getCur();if(!r)return{};if(!r.fd[key])r.fd[key]={};return r.fd[key];}
+function sv(key,field,val){const r=getCur();if(!r)return;if(!r.fd[key])r.fd[key]={};r.fd[key][field]=val;persist();}
+
+function saveFN(){
+  const r=getCur();if(!r)return;r.formNumber=document.getElementById('fnInput').value;persist();
+  const s=document.getElementById('fnSaved');s.style.display='';setTimeout(()=>s.style.display='none',2000);
+}
+function renderFN(){
+  const r=getCur();if(!r)return;
+  document.getElementById('fnBanner').style.display='flex';
+  document.getElementById('fnInput').value=r.formNumber||'';
+  document.getElementById('fnMeta').textContent=r.exportedAt?'Exported: '+fd(r.exportedAt):'';
+}
+function renderTimer(){
+  const r=getCur();if(!r)return;
+  const now=Date.now(),opened=new Date(r.openedAt);
+  const msE=now-opened;
+  const days=Math.floor(msE/86400000),hrs=Math.floor((msE%86400000)/3600000),mins=Math.floor((msE%3600000)/60000);
+  const tgt=(M[r.method]||M['8d']).target;
+  const cyc=r.closedAt?Math.floor((new Date(r.closedAt)-opened)/86400000):days;
+  const cls=days>tgt?'over':days>tgt*.8?'warn':'good';
+  document.getElementById('timerStrip').innerHTML=`
+    <div class="tbox"><div class="tv">${fd(r.openedAt)}</div><div class="tl">Date Opened</div></div>
+    ${r.closedAt
+      ?`<div class="tbox good"><div class="tv">${cyc}d</div><div class="tl">Cycle Time</div></div>`
+      :`<div class="tbox ${cls}"><div class="tv">${days}d ${hrs}h ${mins}m</div><div class="tl">Open Duration</div></div>`}
+    <div class="tbox ${cls}">
+      <div class="tv">${tgt}d</div><div class="tl">Target</div>
+      <div class="cbar" style="margin-top:4px"><div class="cbar-fill ${cls==='good'?'':cls}" style="width:${Math.min((cyc/tgt)*100,100).toFixed(0)}%"></div></div>
+    </div>
+    <div class="tbox ${r.closedAt?'good':''}">
+      <div class="tv" style="${!r.closedAt?'font-size:12px;color:var(--gray-m)':''}">${r.closedAt?fd(r.closedAt):'Open'}</div>
+      <div class="tl">Date Closed</div>
+    </div>`;
+}
+function renderSidebar(){
+  const r=getCur();if(!r)return;
+  const m=M[r.method]||M['8d'];
+  document.getElementById('stepsTitle').textContent=m.label;
+  const pct=m.steps.length>1?(curStep/(m.steps.length-1))*100:0;
+  document.getElementById('progF').style.width=Math.round(pct)+'%';
+  document.getElementById('stepsList').innerHTML=m.steps.map((s,i)=>`
+    <div class="sbtn ${i===curStep?'on':i<curStep?'done':''}" onclick="goStep(${i})">
+      <div class="snum">${i<curStep?'✓':s.id}</div>
+      <div><div class="slbl">${s.l}</div><div class="ssub">${s.s}</div></div>
+    </div>`).join('');
+}
+function goStep(i){curStep=i;const r=getCur();if(r&&i>(r.currentStep||0)){r.currentStep=i;persist();}renderSidebar();renderStep();}
+function nextStep(){const r=getCur();const m=M[r.method]||M['8d'];if(curStep<m.steps.length-1){curStep++;r.currentStep=Math.max(r.currentStep||0,curStep);persist();renderSidebar();renderStep();}}
+function prevStep(){if(curStep>0){curStep--;renderSidebar();renderStep();}}
+function closeRep(){const r=getCur();if(!r)return;r.status='closed';r.closedAt=new Date().toISOString();persist();renderTimer();renderStep();}
+
+// ═══════════════════════════════════
+//  STEP BUILDER
+// ═══════════════════════════════════
+function renderStep(){
+  const r=getCur();if(!r)return;
+  const m=M[r.method]||M['8d'];
+  const s=m.steps[curStep];
+  const isLast=curStep===m.steps.length-1;
+  const key=r.method+'_'+s.id;
+  const fdata=getfd(key);
+
+  const body=isLast?buildDone(r):buildBody(r,s,key,fdata);
+
+  document.getElementById('mainPanel').innerHTML=`
+    <div class="ph">
+      <div class="pico">${s.id}</div>
+      <div><div class="ptitle">${s.title}</div><div class="pdesc">${s.desc}</div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <button class="btn btn-ai btn-sm" onclick="aiGuide(this,'${r.method}','${s.id}',\`${eq(s.title)}\`,\`${eq(r.desc)}\`,\`${eq(s.desc)}\`)">✦ AI Guidance — ${s.id}</button>
+    </div>
+    <div class="ai-area" id="aiMain"></div>
+    ${body}
+    ${!isLast?`<div class="nav-btns">
+      ${curStep>0?`<button class="btn btn-secondary" onclick="prevStep()">← Previous</button>`:''}
+      <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+      ${r.status==='open'?`<button class="btn btn-success" style="margin-left:auto" onclick="closeRep()">✓ Close Report</button>`:''}
+    </div>`:''}`;
+}
+
+function eq(s){return (s||'').replace(/`/g,"'").replace(/\\/g,'\\\\').replace(/\n/g,' ');}
+function ve(fdata,field){return (fdata[field]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+// ─────────────────────────────────────────────────────
+//  D1 — IATF Header + Team
+// ─────────────────────────────────────────────────────
+function buildD1(r,key,fdata){
+  return `
+  <div class="sec">Complaint Reference</div>
+  <div class="g2">
+    <div class="fgroup"><label class="flabel">Complaint No. (Internal)</label><input type="text" value="${ve(fdata,'complaint_no')}" oninput="sv('${key}','complaint_no',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Customer Complaint No.</label><input type="text" value="${ve(fdata,'cust_no')}" oninput="sv('${key}','cust_no',this.value)"/></div>
+  </div>
+  <div class="g3">
+    <div class="fgroup"><label class="flabel">Date Opened</label><input type="date" value="${ve(fdata,'date_open')}" onchange="sv('${key}','date_open',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Internal Contact</label><input type="text" value="${ve(fdata,'internal_contact')}" oninput="sv('${key}','internal_contact',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Customer Contact</label><input type="text" value="${ve(fdata,'cust_contact')}" oninput="sv('${key}','cust_contact',this.value)"/></div>
+  </div>
+
+  <div class="sec">Affected Part</div>
+  <div class="g3">
+    <div class="fgroup"><label class="flabel">Customer Part No.</label><input type="text" value="${ve(fdata,'cust_pn')}" oninput="sv('${key}','cust_pn',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Internal Part No.</label><input type="text" value="${ve(fdata,'int_pn')}" oninput="sv('${key}','int_pn',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Part Name</label><input type="text" value="${ve(fdata,'part_name')}" oninput="sv('${key}','part_name',this.value)"/></div>
+  </div>
+  <div class="g4">
+    <div class="fgroup"><label class="flabel">Shipment Reference</label><input type="text" value="${ve(fdata,'ship_ref')}" oninput="sv('${key}','ship_ref',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Lot Number</label><input type="text" value="${ve(fdata,'lot_no')}" oninput="sv('${key}','lot_no',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Qty Shipped</label><input type="text" value="${ve(fdata,'qty_ship')}" oninput="sv('${key}','qty_ship',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Qty N/C Reported</label><input type="text" value="${ve(fdata,'qty_nc')}" oninput="sv('${key}','qty_nc',this.value)"/></div>
+  </div>
+
+  <div class="sec">Cross-Functional Team (IATF §5.3)</div>
+  <table class="atbl">
+    <thead><tr><th>Role</th><th>Name</th><th>Title / Department</th><th>Phone</th><th>Email</th></tr></thead>
+    <tbody>${['Team Leader','Member 1','Member 2','Member 3','Member 4'].map((role,i)=>`<tr>
+      <td style="color:var(--gray-m);font-size:12px;font-weight:600;padding:6px 8px;white-space:nowrap">${role}</td>
+      <td><input type="text" value="${ve(fdata,'tm'+i+'_name')}" oninput="sv('${key}','tm'+${i}+'_name',this.value)"/></td>
+      <td><input type="text" value="${ve(fdata,'tm'+i+'_title')}" oninput="sv('${key}','tm'+${i}+'_title',this.value)"/></td>
+      <td><input type="text" value="${ve(fdata,'tm'+i+'_phone')}" oninput="sv('${key}','tm'+${i}+'_phone',this.value)"/></td>
+      <td><input type="text" value="${ve(fdata,'tm'+i+'_email')}" oninput="sv('${key}','tm'+${i}+'_email',this.value)"/></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ─────────────────────────────────────────────────────
+//  D2 — Problem Description
+// ─────────────────────────────────────────────────────
+function buildD2(r,key,fdata){
+  return `
+  <div class="sec">1. Description of the Problem (IATF §10.2.3)</div>
+  <div class="fgroup"><label class="flabel">Problem Description</label>
+    <textarea rows="4" oninput="sv('${key}','prob_desc',this.value)">${fdata.prob_desc||''}</textarea></div>
+  <div class="g2">
+    <div class="fgroup"><label class="flabel">What is the defect?</label><input type="text" value="${ve(fdata,'what')}" oninput="sv('${key}','what',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Where detected?</label><input type="text" value="${ve(fdata,'where')}" oninput="sv('${key}','where',this.value)"/></div>
+  </div>
+  <div class="g3">
+    <div class="fgroup"><label class="flabel">When first detected?</label><input type="date" value="${ve(fdata,'when')}" onchange="sv('${key}','when',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Detected by whom?</label><input type="text" value="${ve(fdata,'who')}" oninput="sv('${key}','who',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">How many units N/C?</label><input type="text" value="${ve(fdata,'how_many')}" oninput="sv('${key}','how_many',this.value)"/></div>
+  </div>
+  <div class="fgroup"><label class="flabel">Customer impact / severity</label>
+    <textarea rows="2" oninput="sv('${key}','impact',this.value)">${fdata.impact||''}</textarea></div>`;
+}
+
+// ─────────────────────────────────────────────────────
+//  D3 — Containment (action table)
+// ─────────────────────────────────────────────────────
+function buildD3(r,key,fdata){
+  return `
+  <div class="sec">3. Short-term & Containment Actions (IATF §10.2.3)</div>
+  <span class="fhint">Immediate actions to protect the customer. Enter at least one containment action before moving to D4.</span>
+  ${buildActTbl(key,fdata,'c','Containment action')}
+  <button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="addRow('${key}','c')">+ Add Row</button>`;
+}
+
+// ─────────────────────────────────────────────────────
+//  D4 — Root Cause (Fishbone + 5 Whys)
+// ─────────────────────────────────────────────────────
+function buildD4(r,key,fdata){
+  const problem=fdata.effect||r.desc||'';
+  const cats=[
+    {id:'man',label:'Man / People',color:'#1a5fb4'},
+    {id:'machine',label:'Machine / Equipment',color:'#6d28d9'},
+    {id:'method',label:'Method / Process',color:'#2e7d32'},
+    {id:'material',label:'Material',color:'#b45309'},
+    {id:'measurement',label:'Measurement / MSA',color:'#b91c1c'},
+    {id:'environment',label:'Environment',color:'#374151'},
+  ];
+  const escapeCauses=fdata.escape_causes||'';
+  return `
+  <div class="sec">Effect / Problem Statement (for Fishbone)</div>
+  <div class="fgroup">
+    <input type="text" value="${ve(fdata,'effect')}" placeholder="Describe the effect on the fishbone..."
+      oninput="sv('${key}','effect',this.value)"/>
+  </div>
+
+  <div class="ishi-wrap" id="iw_${key}">
+    <div class="ishi-hdr">
+      <h4>Ishikawa Fishbone — 6M (IATF §10.2)</h4>
+      <button class="btn btn-ai btn-sm" id="aiBone_${key}" onclick="aiIshikawa('${key}',\`${eq(problem)}\`)">✦ AI — Suggest Causes</button>
+      <button class="btn btn-secondary btn-sm" onclick="refreshSVG('${key}')">↻ Refresh Diagram</button>
+    </div>
+    <div class="ishi-svg" id="isvg_${key}">
+      ${buildSVG(fdata,problem)}
+    </div>
+    <div style="padding:7px 12px;font-size:11px;color:var(--gray-m);background:var(--gray-l);border-top:1px solid var(--gray-b)">
+      Enter causes below — one per line. Click ↻ Refresh to update the diagram.
+    </div>
+    <div class="ishi-grid" id="icat_${key}">
+      ${cats.map(cat=>`
+        <div class="ishi-cell">
+          <div class="clbl" style="color:${cat.color}">${cat.label}</div>
+          <textarea id="ic_${key}_${cat.id}" placeholder="One cause per line..."
+            oninput="sv('${key}','ishi_${cat.id}',this.value)">${fdata['ishi_'+cat.id]||''}</textarea>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="ai-area" id="aiBoneResult"></div>
+
+  <div class="sec">5 Whys — Why Occurred</div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+    <button class="btn btn-ai btn-sm" id="aiWhyBtn_${key}"
+      onclick="aiWhys('${key}',\`${eq(problem)}\`,\`${eq(JSON.stringify(getCauses(key)))}\`)">
+      ✦ AI — Generate 5 Whys Chain
+    </button>
+    <span style="font-size:11px;color:var(--gray-m)">AI reads your Ishikawa causes and builds a logical W1–W5 chain</span>
+  </div>
+  <div class="ai-area" id="aiWhysResult"></div>
+  <div class="whys" id="whys_${key}">
+    ${[1,2,3,4,5].map(n=>`
+      <div class="wrow">
+        <div class="wnum">W${n}</div>
+        <div class="wfield">
+          <input type="text" id="w${n}_${key}" value="${ve(fdata,'why'+n)}"
+            placeholder="${n===1?'Why did the problem occur?':n===5?'Root cause?':'Why did that happen?'}"
+            oninput="sv('${key}','why${n}',this.value)"/>
+        </div>
+        <div class="wtag">${n===5?'<b>Root cause</b>':''}</div>
+      </div>`).join('')}
+  </div>
+
+  <div class="sec">5 Whys — Why Not Detected</div>
+  <div class="whys">
+    ${[1,2,3].map(n=>`
+      <div class="wrow">
+        <div class="wnum" style="background:#6b7280">E${n}</div>
+        <div class="wfield">
+          <input type="text" value="${ve(fdata,'escape'+n)}"
+            placeholder="${n===1?'Why was the defect not detected?':n===3?'Escape root cause?':'Why?'}"
+            oninput="sv('${key}','escape'+${n},this.value)"/>
+        </div>
+        <div class="wtag">${n===3?'<b>Escape RC</b>':''}</div>
+      </div>`).join('')}
+  </div>
+
+  <div class="g2" style="margin-top:10px">
+    <div class="fgroup"><label class="flabel">Verified Root Cause — Occurrence</label>
+      <textarea rows="3" oninput="sv('${key}','rc_occ',this.value)">${fdata.rc_occ||''}</textarea></div>
+    <div class="fgroup"><label class="flabel">Verified Root Cause — Escape / Detection</label>
+      <textarea rows="3" oninput="sv('${key}','rc_esc',this.value)">${fdata.rc_esc||''}</textarea></div>
+  </div>`;
+}
+
+function getCauses(key){
+  const r=getCur();if(!r||!r.fd[key])return{};
+  const fd=r.fd[key];
+  return {man:fd.ishi_man,machine:fd.ishi_machine,method:fd.ishi_method,material:fd.ishi_material,measurement:fd.ishi_measurement,environment:fd.ishi_environment};
+}
+
+// ─────────────────────────────────────────────────────
+//  D5 — Permanent Corrective Actions
+// ─────────────────────────────────────────────────────
+function buildD5(r,key,fdata){
+  return `
+  <div class="sec">5. Permanent Corrective Actions (IATF §10.2.3b)</div>
+  <span class="fhint">Actions targeting the verified root cause — both occurrence and detection/escape root causes.</span>
+  ${buildActTbl(key,fdata,'p','Corrective action')}
+  <button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="addRow('${key}','p')">+ Add Row</button>`;
+}
+
+// ─────────────────────────────────────────────────────
+//  D6 — Document Update (IATF table)
+// ─────────────────────────────────────────────────────
+function buildD6(r,key,fdata){
+  const docs=[{c:'R/U',n:'PFMEA'},{c:'U',n:'Control Plan'},{c:'U',n:'Work / Inspection Instructions'},{c:'R',n:'Procedures'},{c:'R',n:'Others'}];
+  return `
+  <div class="sec">6. Implementation & Verify Corrective Actions</div>
+  <div class="fgroup"><label class="flabel">Implementation notes / verification evidence</label>
+    <textarea rows="3" oninput="sv('${key}','impl_notes',this.value)">${fdata.impl_notes||''}</textarea></div>
+
+  <div class="sec">6.1 Related Documents to Review (R) / Update (U) — IATF §7.5</div>
+  <table class="atbl">
+    <thead><tr><th style="width:50px">R/U</th><th>Document</th><th>Responsibility</th><th>Due Date</th><th style="width:50px">%</th><th>Complete Date</th></tr></thead>
+    <tbody>${docs.map((doc,i)=>`<tr>
+      <td style="text-align:center;font-weight:700;font-size:13px;color:${doc.c==='U'?'var(--blue)':'var(--gray-m)'};padding:6px 8px">${doc.c}</td>
+      <td style="font-size:12.5px;padding:7px 9px;font-weight:500">${doc.n}</td>
+      <td><input type="text" value="${ve(fdata,'d'+i+'_resp')}" oninput="sv('${key}','d'+${i}+'_resp',this.value)"/></td>
+      <td style="width:110px"><input type="date" value="${ve(fdata,'d'+i+'_due')}" onchange="sv('${key}','d'+${i}+'_due',this.value)"/></td>
+      <td><input type="text" value="${ve(fdata,'d'+i+'_pct')}" placeholder="%" oninput="sv('${key}','d'+${i}+'_pct',this.value)"/></td>
+      <td style="width:110px"><input type="date" value="${ve(fdata,'d'+i+'_done')}" onchange="sv('${key}','d'+${i}+'_done',this.value)"/></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ─────────────────────────────────────────────────────
+//  D7 — Prevention
+// ─────────────────────────────────────────────────────
+function buildD7(r,key,fdata){
+  return `
+  <div class="sec">7. Preventive Actions — Wide Approach (IATF §10.3)</div>
+  <span class="fhint">Extend actions to similar processes, products, or other production lines to prevent recurrence system-wide.</span>
+  ${buildActTbl(key,fdata,'pv','Preventive action')}
+  <button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="addRow('${key}','pv')">+ Add Row</button>`;
+}
+
+// ─────────────────────────────────────────────────────
+//  D8 — Effectiveness & Closure
+// ─────────────────────────────────────────────────────
+function buildD8(r,key,fdata){
+  const r2=getCur();
+  return `
+  <div class="sec">8. Verify Effectiveness of Corrective Actions (IATF §10.2.3e)</div>
+  ${buildActTbl(key,fdata,'e','Effectiveness check')}
+  <button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="addRow('${key}','e')">+ Add Row</button>
+
+  <div class="sec">Lessons Learned</div>
+  <div class="fgroup">
+    <textarea rows="3" placeholder="Key lessons to share with other teams or products..." oninput="sv('${key}','lessons',this.value)">${fdata.lessons||''}</textarea></div>
+
+  <div class="sec">Approval Sign-off</div>
+  <table class="atbl">
+    <thead><tr><th>Role</th><th>Name</th><th>Title</th><th>Date</th><th>Signature / Initials</th></tr></thead>
+    <tbody><tr>
+      <td style="color:var(--gray-m);font-size:12px;font-weight:600;padding:6px 8px">Approved by</td>
+      <td><input type="text" value="${ve(fdata,'appr_name')}" oninput="sv('${key}','appr_name',this.value)"/></td>
+      <td><input type="text" value="${ve(fdata,'appr_title')}" oninput="sv('${key}','appr_title',this.value)"/></td>
+      <td><input type="date" value="${ve(fdata,'appr_date')}" onchange="sv('${key}','appr_date',this.value)"/></td>
+      <td><input type="text" value="${ve(fdata,'appr_sig')}" placeholder="Initials / digital" oninput="sv('${key}','appr_sig',this.value)"/></td>
+    </tr></tbody>
+  </table>
+  ${r2&&r2.status==='open'
+    ?`<div style="margin-top:12px"><button class="btn btn-success" onclick="closeRep()">✓ Close & Complete Report</button></div>`
+    :`<div style="background:var(--green-l);color:var(--green);padding:8px 12px;border-radius:6px;font-weight:600;margin-top:10px;font-size:13px">✓ Report Closed — ${fd((getCur()||{}).closedAt)}</div>`}`;
+}
+
+// ─────────────────────────────────────────────────────
+//  CAPA Generic Steps (ISO 13485)
+// ─────────────────────────────────────────────────────
+function buildCAPAGeneric(r,s,key,fdata){
+  // RCA step gets full Fishbone+5Whys
+  if(s.id==='C4') return buildRCAGeneric(r,s,key,fdata);
+  return `
+  <div class="fgroup"><label class="flabel">${s.title}</label>
+    <textarea rows="5" oninput="sv('${key}','main',this.value)">${fdata.main||''}</textarea></div>
+  <div class="g2">
+    <div class="fgroup"><label class="flabel">Owner / Responsible</label><input type="text" value="${ve(fdata,'owner')}" oninput="sv('${key}','owner',this.value)"/></div>
+    <div class="fgroup"><label class="flabel">Target Date</label><input type="date" value="${ve(fdata,'due')}" onchange="sv('${key}','due',this.value)"/></div>
+  </div>
+  <div class="fgroup"><label class="flabel">Evidence / Records</label>
+    <textarea rows="3" oninput="sv('${key}','evidence',this.value)">${fdata.evidence||''}</textarea></div>`;
+}
+
+// AS9100 Generic
+function buildAS9Generic(r,s,key,fdata){
+  if(s.id==='A4') return buildRCAGeneric(r,s,key,fdata);
+  return buildCAPAGeneric(r,s,key,fdata);
+}
+
+function buildRCAGeneric(r,s,key,fdata){
+  const problem=fdata.effect||r.desc||'';
+  const cats=[
+    {id:'man',label:'Man',color:'#1a5fb4'},
+    {id:'machine',label:'Machine',color:'#6d28d9'},
+    {id:'method',label:'Method',color:'#2e7d32'},
+    {id:'material',label:'Material',color:'#b45309'},
+    {id:'measurement',label:'Measurement',color:'#b91c1c'},
+    {id:'environment',label:'Environment',color:'#374151'},
+  ];
+  return `
+  <div class="fgroup"><label class="flabel">Problem / Effect Statement</label>
+    <input type="text" value="${ve(fdata,'effect')}" oninput="sv('${key}','effect',this.value)"/></div>
+  <div class="ishi-wrap">
+    <div class="ishi-hdr">
+      <h4>Ishikawa Fishbone — 6M</h4>
+      <button class="btn btn-ai btn-sm" onclick="aiIshikawa('${key}',\`${eq(problem)}\`)">✦ AI — Suggest Causes</button>
+      <button class="btn btn-secondary btn-sm" onclick="refreshSVG('${key}')">↻ Refresh</button>
+    </div>
+    <div class="ishi-svg" id="isvg_${key}">${buildSVG(fdata,problem)}</div>
+    <div class="ishi-grid">
+      ${cats.map(cat=>`<div class="ishi-cell">
+        <div class="clbl" style="color:${cat.color}">${cat.label}</div>
+        <textarea id="ic_${key}_${cat.id}" placeholder="One cause per line..."
+          oninput="sv('${key}','ishi_${cat.id}',this.value)">${fdata['ishi_'+cat.id]||''}</textarea>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="ai-area" id="aiBoneResult"></div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+    <button class="btn btn-ai btn-sm" onclick="aiWhys('${key}',\`${eq(problem)}\`,\`${eq(JSON.stringify(getCauses(key)))}\`)">✦ AI — Generate 5 Whys</button>
+  </div>
+  <div class="ai-area" id="aiWhysResult"></div>
+  <div class="whys">
+    ${[1,2,3,4,5].map(n=>`<div class="wrow">
+      <div class="wnum">W${n}</div>
+      <div class="wfield"><input type="text" id="w${n}_${key}" value="${ve(fdata,'why'+n)}"
+        placeholder="${n===5?'Root cause?':'Why '+n+'...'}" oninput="sv('${key}','why${n}',this.value)"/></div>
+      <div class="wtag">${n===5?'<b>Root cause</b>':''}</div>
+    </div>`).join('')}
+  </div>
+  <div class="fgroup" style="margin-top:10px"><label class="flabel">Verified Root Cause Statement</label>
+    <textarea rows="3" oninput="sv('${key}','root_cause',this.value)">${fdata.root_cause||''}</textarea></div>`;
+}
+
+function buildBody(r,s,key,fdata){
+  const m=r.method, sid=s.id;
+  if(m==='8d'){
+    if(sid==='D1')return buildD1(r,key,fdata);
+    if(sid==='D2')return buildD2(r,key,fdata);
+    if(sid==='D3')return buildD3(r,key,fdata);
+    if(sid==='D4')return buildD4(r,key,fdata);
+    if(sid==='D5')return buildD5(r,key,fdata);
+    if(sid==='D6')return buildD6(r,key,fdata);
+    if(sid==='D7')return buildD7(r,key,fdata);
+    if(sid==='D8')return buildD8(r,key,fdata);
+  }
+  if(m==='capa')return buildCAPAGeneric(r,s,key,fdata);
+  if(m==='as9100')return buildAS9Generic(r,s,key,fdata);
+  return `<textarea rows="5" oninput="sv('${key}','main',this.value)">${fdata.main||''}</textarea>`;
+}
+
+function buildDone(r){
+  const days=r.closedAt?Math.floor((new Date(r.closedAt)-new Date(r.openedAt))/86400000):Math.floor((Date.now()-new Date(r.openedAt))/86400000);
+  return `<div class="done-view">
+    <div style="font-size:32px;margin-bottom:5px">✓</div>
+    <h2>Report Complete</h2>
+    <p>All ${(M[r.method]||M['8d']).label} steps documented.</p>
+    <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-ai" onclick="aiSummary('${r.id}')">✦ AI Executive Summary</button>
+      <button class="btn btn-primary" onclick="exportPDF('${r.id}')">Export PDF</button>
+      ${r.status==='open'?`<button class="btn btn-success" onclick="closeRep()">✓ Close Report</button>`:''}
+    </div>
+    <div class="ai-area" id="summaryArea" style="text-align:left;margin-top:12px"></div>
+    <div class="done-grid">
+      <div class="dc"><div class="dl">Report #</div><div class="dv">${r.ncr}</div></div>
+      <div class="dc"><div class="dl">Method</div><div class="dv">${(M[r.method]||M['8d']).label}</div></div>
+      <div class="dc"><div class="dl">Customer</div><div class="dv">${r.customer||'—'}</div></div>
+      <div class="dc"><div class="dl">Opened</div><div class="dv">${fd(r.openedAt)}</div></div>
+      <div class="dc"><div class="dl">Cycle Days</div><div class="dv" style="color:var(--blue)">${days}</div></div>
+      <div class="dc"><div class="dl">PDF Form #</div><div class="dv">${r.formNumber||'Not assigned'}</div></div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════
+//  ACTION TABLE
+// ═══════════════════════════════════
+function buildActTbl(key,fdata,prefix,placeholder){
+  const acts=fdata['acts_'+prefix]||[{item:'',resp:'',due:'',pct:'',done:''}];
+  return `<table class="atbl" id="at_${key}_${prefix}">
+    <thead><tr><th>Action Item</th><th style="width:130px">Responsibility</th><th style="width:110px">Due Date</th><th style="width:45px">%</th><th style="width:110px">Complete Date</th></tr></thead>
+    <tbody>${acts.map((a,i)=>`<tr>
+      <td><input type="text" value="${(a.item||'').replace(/"/g,'&quot;')}" placeholder="${placeholder}..." oninput="updateAct('${key}','${prefix}',${i},'item',this.value)"/></td>
+      <td><input type="text" value="${(a.resp||'').replace(/"/g,'&quot;')}" oninput="updateAct('${key}','${prefix}',${i},'resp',this.value)"/></td>
+      <td><input type="date" value="${a.due||''}" onchange="updateAct('${key}','${prefix}',${i},'due',this.value)"/></td>
+      <td><input type="text" value="${(a.pct||'').replace(/"/g,'&quot;')}" placeholder="%" oninput="updateAct('${key}','${prefix}',${i},'pct',this.value)"/></td>
+      <td><input type="date" value="${a.done||''}" onchange="updateAct('${key}','${prefix}',${i},'done',this.value)"/></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+function updateAct(key,prefix,i,field,val){
+  const r=getCur();if(!r||!r.fd[key])return;
+  const k='acts_'+prefix;
+  if(!r.fd[key][k])r.fd[key][k]=[{item:'',resp:'',due:'',pct:'',done:''}];
+  r.fd[key][k][i][field]=val;persist();
+}
+function addRow(key,prefix){
+  const r=getCur();if(!r||!r.fd[key])return;
+  const k='acts_'+prefix;
+  if(!r.fd[key][k])r.fd[key][k]=[];
+  r.fd[key][k].push({item:'',resp:'',due:'',pct:'',done:''});
+  persist();renderStep();
+}
+
+// ═══════════════════════════════════
+//  FISHBONE SVG
+// ═══════════════════════════════════
+function buildSVG(fdata,problem){
+  const W=720,H=260,spY=130;
+  const CATS=[
+    {id:'man',label:'Man',color:'#1a5fb4',top:true,x:155},
+    {id:'machine',label:'Machine',color:'#6d28d9',top:true,x:315},
+    {id:'method',label:'Method',color:'#2e7d32',top:true,x:475},
+    {id:'material',label:'Material',color:'#b45309',top:false,x:155},
+    {id:'measurement',label:'Measurement',color:'#b91c1c',top:false,x:315},
+    {id:'environment',label:'Environment',color:'#374151',top:false,x:475},
+  ];
+  const prob=(problem||'Effect').substring(0,22);
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+  <line x1="30" y1="${spY}" x2="${W-88}" y2="${spY}" stroke="#374151" stroke-width="2.5"/>
+  <polygon points="${W-87},${spY} ${W-74},${spY-7} ${W-74},${spY+7}" fill="#1a5fb4"/>
+  <rect x="${W-87}" y="${spY-21}" width="85" height="42" rx="5" fill="#1a5fb4"/>
+  <text x="${W-45}" y="${spY-7}" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">EFFECT</text>
+  <text x="${W-45}" y="${spY+8}" text-anchor="middle" fill="#dbeafe" font-size="8">${prob}</text>`;
+
+  CATS.forEach(cat=>{
+    const bY=cat.top?spY-82:spY+82;
+    const eX=cat.x+48;
+    const causes=(fdata['ishi_'+cat.id]||'').split('\n').filter(c=>c.trim()).slice(0,3);
+    s+=`<line x1="${cat.x}" y1="${bY}" x2="${eX}" y2="${spY}" stroke="${cat.color}" stroke-width="1.8"/>`;
+    const bxY=cat.top?bY-24:bY+2;
+    s+=`<rect x="${cat.x-50}" y="${bxY}" width="100" height="20" rx="4" fill="${cat.color}"/>
+    <text x="${cat.x}" y="${bxY+13}" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="700">${cat.label}</text>`;
+    causes.forEach((c,j)=>{
+      const cx=cat.x-(18+j*10),cy=cat.top?bY-(22+j*16):bY+(26+j*16);
+      s+=`<line x1="${cat.x-(4+j*8)}" y1="${cat.top?bY-4:bY+4}" x2="${cx+c.length*2.5}" y2="${cy+1}" stroke="${cat.color}" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="${cx}" y="${cy}" fill="${cat.color}" font-size="8.5" font-weight="500">${c.substring(0,20)}</text>`;
+    });
+  });
+  return s+'</svg>';
+}
+
+function refreshSVG(key){
+  const r=getCur();if(!r||!r.fd[key])return;
+  const el=document.getElementById('isvg_'+key);
+  if(el)el.innerHTML=buildSVG(r.fd[key],r.fd[key].effect||r.desc||'');
+}
+
+// ═══════════════════════════════════
+//  AI — using Anthropic API via artifacts
+// ═══════════════════════════════════
+async function callAI(prompt){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:900,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  if(!res.ok)throw new Error('API '+res.status);
+  const d=await res.json();
+  return (d.content||[]).map(b=>b.text||'').join('');
+}
+
+function showLoading(elId){
+  const el=document.getElementById(elId);
+  if(el)el.innerHTML='<div class="ai-box"><div class="dots"><span></span><span></span><span></span></div> <span style="font-size:12px;color:var(--gray-m)">Thinking...</span></div>';
+}
+function showResult(elId,txt){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  const html=txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s,'<ul>$1</ul>')
+    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+  el.innerHTML='<div class="ai-box">'+html+'</div>';
+}
+function showError(elId,msg){
+  const el=document.getElementById(elId);
+  if(el)el.innerHTML=`<div class="ai-box" style="color:var(--red);border-color:#fca5a5">⚠ ${msg}</div>`;
+}
+
+async function aiGuide(btn,method,stepId,stepTitle,probDesc,stepDesc){
+  btn.disabled=true;btn.textContent='Thinking...';
+  showLoading('aiMain');
+  const names={'8d':'IATF 16949 / 8D automotive','capa':'CAPA ISO 13485 medical devices','as9100':'AS9100 Rev D aerospace'};
+  try{
+    const txt=await callAI(
+      `You are a senior quality engineer expert in ${names[method]||names['8d']}.
+Step: ${stepId} — "${stepTitle}"
+Standard requirement: ${stepDesc}
+Problem context: "${probDesc}"
+
+Provide exactly 4 bullet points:
+• What specific data / evidence must be documented in this step
+• Key standard clause requirements or customer expectations
+• Most common mistake or omission to avoid
+• One practical tip to complete this step correctly
+
+Be concise, technical, and specific to the standard.`
+    );
+    showResult('aiMain',txt);
+  }catch(e){showError('aiMain','AI unavailable: '+e.message);}
+  btn.disabled=false;btn.textContent='✦ AI Guidance — '+stepId;
+}
+
+async function aiIshikawa(key,problemDesc){
+  const btnEl=document.getElementById('aiBone_'+key);
+  if(btnEl){btnEl.disabled=true;btnEl.textContent='Thinking...';}
+  showLoading('aiBoneResult');
+  try{
+    const txt=await callAI(
+      `Quality engineering task. Problem effect: "${problemDesc||'quality defect'}".
+Generate Ishikawa fishbone causes. Respond ONLY in this exact format, no extra text:
+MAN: cause1 | cause2 | cause3
+MACHINE: cause1 | cause2 | cause3
+METHOD: cause1 | cause2 | cause3
+MATERIAL: cause1 | cause2 | cause3
+MEASUREMENT: cause1 | cause2 | cause3
+ENVIRONMENT: cause1 | cause2 | cause3
+Max 4 words per cause. Be specific and technical.`
+    );
+    const r=getCur();if(!r||!r.fd[key])return;
+    const map={MAN:'ishi_man',MACHINE:'ishi_machine',METHOD:'ishi_method',MATERIAL:'ishi_material',MEASUREMENT:'ishi_measurement',ENVIRONMENT:'ishi_environment'};
+    txt.split('\n').forEach(line=>{
+      const col=line.indexOf(':');if(col<1)return;
+      const cat=line.substring(0,col).trim().toUpperCase();
+      const val=line.substring(col+1).trim().replace(/\|/g,'\n');
+      if(map[cat]){
+        r.fd[key][map[cat]]=val;
+        const ta=document.getElementById('ic_'+key+'_'+cat.toLowerCase());
+        if(ta)ta.value=val;
+      }
+    });
+    persist();refreshSVG(key);
+    showResult('aiBoneResult','✓ Fishbone populated — review and adjust each category.');
+  }catch(e){showError('aiBoneResult','AI unavailable: '+e.message);}
+  if(btnEl){btnEl.disabled=false;btnEl.textContent='✦ AI — Suggest Causes';}
+}
+
+async function aiWhys(key,problemDesc,ishiJson){
+  const btn=document.getElementById('aiWhyBtn_'+key);
+  if(btn){btn.disabled=true;btn.textContent='Thinking...';}
+  showLoading('aiWhysResult');
+  let causes='';
+  try{const c=JSON.parse(ishiJson);causes=Object.entries(c).filter(([,v])=>v).map(([k,v])=>k+': '+v).join(' | ');}catch(e){}
+  try{
+    const txt=await callAI(
+      `Quality engineering. Problem: "${problemDesc}". Fishbone causes: ${causes||'not yet filled'}.
+Generate a logical 5 Whys chain drilling to a systemic root cause.
+Respond in EXACTLY this format:
+WHY1: [answer]
+WHY2: [answer]
+WHY3: [answer]
+WHY4: [answer]
+WHY5: [root cause]
+ROOT_CAUSE: [one-sentence systemic root cause]
+CORRECTIVE_ACTION: [suggested corrective action]
+One sentence per line. Be technical and logical.`
+    );
+    const r=getCur();
+    if(r&&r.fd[key]){
+      txt.split('\n').forEach(line=>{
+        for(let n=1;n<=5;n++){
+          if(line.toUpperCase().startsWith('WHY'+n+':')){
+            const val=line.substring(line.indexOf(':')+1).trim();
+            if(!r.fd[key]['why'+n]){
+              r.fd[key]['why'+n]=val;
+              const inp=document.getElementById('w'+n+'_'+key);
+              if(inp)inp.value=val;
+            }
+          }
+        }
+      });
+      persist();
+    }
+    const html=txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    showResult('aiWhysResult','<strong>✦ AI 5 Whys Suggestion:</strong><br><br>'+html);
+  }catch(e){showError('aiWhysResult','AI unavailable: '+e.message);}
+  if(btn){btn.disabled=false;btn.textContent='✦ AI — Generate 5 Whys Chain';}
+}
+
+async function aiSummary(id){
+  const r=reports.find(x=>x.id===id);if(!r)return;
+  showLoading('summaryArea');
+  const m=M[r.method]||M['8d'];
+  let data=`Report: ${r.ncr}, Method: ${m.label}, Customer: ${r.customer||'N/A'}, Description: ${r.desc||'N/A'}\n`;
+  m.steps.forEach(s=>{
+    const fdata=r.fd[r.method+'_'+s.id]||{};
+    const vals=Object.entries(fdata).filter(([k,v])=>v&&typeof v==='string'&&v.length>2&&!k.startsWith('acts_')).map(([k,v])=>`${k}: ${v}`).join('; ');
+    if(vals)data+=`${s.id}: ${vals}\n`;
+  });
+  try{
+    const txt=await callAI(
+      `Write a professional executive summary for this ${m.label} report for customer submission:\n${data}\nStructure: 1. Problem Description 2. Root Cause 3. Corrective Actions 4. Lessons Learned. Keep concise and professional.`
+    );
+    showResult('summaryArea','<strong>Executive Summary:</strong><br><br>'+txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>'));
+  }catch(e){showError('summaryArea','AI unavailable: '+e.message);}
+}
+
+// ═══════════════════════════════════
+//  LOGO
+// ═══════════════════════════════════
+function initLogo(){
+  const logo=localStorage.getItem('qms_logo');
+  if(!logo)return;
+  const img=document.getElementById('limg');const ph=document.getElementById('lph');const rem=document.getElementById('lremBtn');
+  if(img){img.src=logo;img.style.display='block';}
+  if(ph)ph.style.display='none';if(rem)rem.style.display='';
+}
+function loadLogo(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const d=e.target.result;localStorage.setItem('qms_logo',d);
+    const img=document.getElementById('limg');img.src=d;img.style.display='block';
+    document.getElementById('lph').style.display='none';
+    document.getElementById('lremBtn').style.display='';
+  };reader.readAsDataURL(file);
+}
+function removeLogo(){
+  localStorage.removeItem('qms_logo');
+  const img=document.getElementById('limg');img.src='';img.style.display='none';
+  document.getElementById('lph').style.display='';document.getElementById('lremBtn').style.display='none';
+}
+
+// ═══════════════════════════════════
+//  PDF EXPORT
+// ═══════════════════════════════════
+function exportPDF(id){
+  const r=reports.find(x=>x.id===id);if(!r)return;
+  r.exportedAt=new Date().toISOString();
+  if(!r.formNumber)r.formNumber=r.method.toUpperCase()+'-'+r.ncr+'-'+new Date().getFullYear();
+  persist();if(curId===id)renderFN();
+  const m=M[r.method]||M['8d'];
+  const days=r.closedAt?Math.floor((new Date(r.closedAt)-new Date(r.openedAt))/86400000):Math.floor((Date.now()-new Date(r.openedAt))/86400000);
+  const logo=localStorage.getItem('qms_logo');
+  const co=localStorage.getItem('qms_co')||'';
+  const logoHtml=logo?`<img src="${logo}" style="max-height:48px;max-width:110px;object-fit:contain"/>`:'';
+
+  const stepsHtml=m.steps.map(s=>{
+    const fdata=r.fd[r.method+'_'+s.id]||{};
+    const fields=Object.entries(fdata)
+      .filter(([k,v])=>v&&typeof v==='string'&&v.length>1&&!k.startsWith('acts_')&&!k.startsWith('ishi_'))
+      .map(([k,v])=>`<tr><td style="padding:3px 9px;font-size:11px;color:#555;background:#f5f5f5;font-weight:600;min-width:140px;border:1px solid #ddd;vertical-align:top">${k.replace(/_/g,' ')}</td><td style="padding:3px 9px;font-size:11.5px;border:1px solid #ddd;vertical-align:top">${v.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</td></tr>`).join('');
+    const actHtml=Object.entries(fdata).filter(([k])=>k.startsWith('acts_')).flatMap(([k,arr])=>{
+      if(!Array.isArray(arr))return[];
+      return arr.filter(a=>a.item).map(a=>`<tr><td style="padding:3px 9px;font-size:11px;border:1px solid #ddd">${a.item}</td><td style="padding:3px 9px;font-size:11px;border:1px solid #ddd;color:#555">Resp: ${a.resp||'—'} | Due: ${a.due||'—'} | ${a.pct||'0'}% | Done: ${a.done||'—'}</td></tr>`);
+    }).join('');
+    return `<div style="margin-bottom:12px;page-break-inside:avoid">
+      <div style="background:#1a5fb4;color:#fff;padding:6px 13px;border-radius:5px;font-size:12.5px;font-weight:700;margin-bottom:5px">${s.id} — ${s.title}</div>
+      ${(fields||actHtml)?`<table style="width:100%;border-collapse:collapse">${fields}${actHtml}</table>`:`<p style="font-size:11px;color:#aaa;padding:3px 9px;font-style:italic">Not completed</p>`}
+    </div>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>${r.ncr}</title>
+  <style>body{font-family:Arial,sans-serif;margin:18px;color:#1a1d23}
+  .hdr{background:#1a5fb4;color:#fff;padding:14px 20px;border-radius:7px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+  .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+  .mb{background:#f5f5f5;padding:9px 11px;border-radius:5px;border:1px solid #e2e5ea}
+  .ml{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+  .mv{font-size:13px;font-weight:700}
+  .footer{margin-top:14px;border-top:1px solid #e2e5ea;padding-top:7px;font-size:10px;color:#9ca3af;display:flex;justify-content:space-between}
+  @media print{body{margin:6px}}</style></head><body>
+  <div class="hdr">
+    <div style="flex:1">
+      ${co?`<div style="font-size:11px;opacity:.75;margin-bottom:2px">${co}</div>`:''}
+      <div style="font-size:18px;font-weight:700;margin-bottom:3px">${m.label} Report — ${r.ncr}</div>
+      <div style="font-size:12px;opacity:.85">${r.desc||''}${r.customer?' | Customer: '+r.customer:''}</div>
+    </div>${logoHtml}
+  </div>
+  <div class="meta">
+    <div class="mb"><div class="ml">PDF Form #</div><div class="mv" style="color:#1a5fb4">${r.formNumber||'—'}</div></div>
+    <div class="mb"><div class="ml">Status</div><div class="mv">${r.status==='open'?'Open':'Closed'}</div></div>
+    <div class="mb"><div class="ml">Customer</div><div class="mv">${r.customer||'—'}</div></div>
+    <div class="mb"><div class="ml">Date Opened</div><div class="mv">${fd(r.openedAt)}</div></div>
+    <div class="mb"><div class="ml">Date Closed</div><div class="mv">${r.closedAt?fd(r.closedAt):'Open'}</div></div>
+    <div class="mb"><div class="ml">Cycle Days</div><div class="mv">${days}</div></div>
+  </div>
+  ${stepsHtml}
+  <div class="footer"><span>Exported: ${new Date().toLocaleString('en-GB')}</span><span>Form #: ${r.formNumber||'—'} | ${m.label}</span></div>
+  <script>window.onload=()=>window.print()<\/script></body></html>`;
+
+  const w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+  else alert('Please allow pop-ups to export PDF');
+}
+
+loadData();
+</script>
+</body>
+</html>
